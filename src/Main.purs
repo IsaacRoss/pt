@@ -1,21 +1,23 @@
 module Main where
 
+import Control.Monad.Eff
+import Data.DOM.Simple.Types
+import DOM
 import Data.DOM.Simple.Unsafe.Element
 import Data.DOM.Simple.Unsafe.Events
 import Data.DOM.Simple.Unsafe.Window
 import Data.DOM.Simple.Window
 import Prelude
 
+main :: forall eff. Eff (dom :: DOM | eff) Unit
 main = do 
-	document <- unsafeDocument globalWindow
-	element  <- unsafeQuerySelector "#inputName" document
+	element  <- unsafeDocument globalWindow >>= unsafeQuerySelector "#inputName"
 	unsafeAddEventListener "input" updateBadge element
 
+updateBadge :: forall eff. DOMEvent -> Eff (dom :: DOM | eff) Unit 
 updateBadge event = do
-	document <- unsafeDocument globalWindow
-	badge    <- unsafeQuerySelector "#badgeName" document
-	target   <- unsafeEventTarget event
-	input    <- unsafeValue target
+	badge    <- unsafeDocument globalWindow >>= unsafeQuerySelector "#badgeName"
+	input   <- unsafeEventTarget event >>= unsafeValue
 	unsafeSetTextContent input badge
 
 
